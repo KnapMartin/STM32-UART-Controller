@@ -25,6 +25,7 @@ class UartController
 
 		bool init();
 		bool send(std::string data);
+		bool send(char data[], uint32_t length);
 		std::string receive(bool print = false);
 
 		bool updateInterruptRx(UART_HandleTypeDef *huart);

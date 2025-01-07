@@ -80,6 +80,28 @@ bool UartController::send(std::string data)
 	return true;
 }
 
+bool UartController::send(char data[], uint32_t length)
+{
+	if (osMutexAcquire(*m_mutexTx, osWaitForever) != osOK)
+	{
+		return false;
+	}
+	if (HAL_UART_Transmit_IT(m_huart, (uint8_t*)data, length) != HAL_OK)
+	{
+		return false;
+	}
+	if (osSemaphoreAcquire(*m_semTx, osWaitForever) != osOK)
+	{
+		return false;
+	}
+	if (osMutexRelease(*m_mutexTx) != osOK)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 std::string UartController::receive(bool print)
 {
 	char rxChar;
