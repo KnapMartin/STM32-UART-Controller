@@ -1,0 +1,138 @@
+/*
+ * uart_controller.cpp
+ *
+ *  Created on: Jan 7, 2025
+ *      Author: knap-linux
+ */
+
+#include "uart_controller.h"
+
+constexpr char rxMessageDelimiter{'\r'};
+
+UartController::UartController()
+	: m_rxChar{}
+	, m_huart(nullptr)
+	, m_semTx{nullptr}
+	, m_queueRx{nullptr}
+	, m_mutexTx{nullptr}
+{
+
+}
+
+UartController::~UartController()
+{
+}
+
+void UartController::setHandleUart(UART_HandleTypeDef *huart)
+{
+	m_huart = huart;
+}
+
+void UartController::setHandleSemTx(osSemaphoreId_t *semTx)
+{
+	m_semTx = semTx;
+}
+
+void UartController::setHandleQueueRx(osMessageQueueId_t *queueRx)
+{
+	m_queueRx = queueRx;
+}
+
+void UartController::setHandleMutexTx(osMutexId_t *mutexTx)
+{
+	m_mutexTx = mutexTx;
+}
+
+bool UartController::init()
+{
+	if (m_huart == nullptr) return false;
+	if (m_semTx == nullptr) return false;
+	if (m_queueRx == nullptr) return false;
+	if (m_mutexTx == nullptr) return false;
+
+	if (HAL_UART_Receive_IT(m_huart, &m_rxChar, 1) != HAL_OK)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool UartController::send(std::string data)
+{
+	if (osMutexAcquire(*m_mutexTx, osWaitForever) != osOK)
+	{
+		return false;
+	}
+	if (HAL_UART_Transmit_IT(m_huart, (uint8_t*)data.c_str(), data.length()) != HAL_OK)
+	{
+		return false;
+	}
+	if (osSemaphoreAcquire(*m_semTx, osWaitForever) != osOK)
+	{
+		return false;
+	}
+	if (osMutexRelease(*m_mutexTx) != osOK)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+std::string UartController::receive(bool print)
+{
+	char rxChar;
+	std::string result;
+
+	while (1)
+	{
+		if (osMessageQueueGet(*m_queueRx, &rxChar, nullptr, osWaitForever) != osOK)
+		{
+			return "";
+		}
+		result += rxChar;
+		if (rxChar == rxMessageDelimiter)
+		{
+			break;
+		}
+	}
+
+	if (print)
+	{
+		this->send(result);
+		this->send("\n");
+	}
+
+	return result;
+}
+
+bool UartController::updateInterruptRx(UART_HandleTypeDef *huart)
+{
+	if (huart->Instance == m_huart->Instance)
+	{
+		if (osMessageQueuePut(*m_queueRx, &m_rxChar, 0, 0) != osOK)
+		{
+			return false;
+		}
+		if (HAL_UART_Receive_IT(m_huart, &m_rxChar, 1) != HAL_OK)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool UartController::updateInterruptTx(UART_HandleTypeDef *huart)
+{
+	if (huart->Instance == m_huart->Instance)
+	{
+		if (osSemaphoreRelease(*m_semTx) != osOK)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
