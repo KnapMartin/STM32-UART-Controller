@@ -53,5 +53,5 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     uart.updateInterruptRx(huart);
 }
 ```
-Now you can use "send" and "recieve" methods from tasks.
+Now you can use "send" and "receive" methods from tasks.
 
