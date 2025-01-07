@@ -3,7 +3,7 @@
 ```
 #include "uart_controller.h"
 ```  
-1. Init a mutex, semaphore and a queue (use your own length) in global scope
+1. Init a mutex, semaphore and a queue in global scope
 ```
 osMutexId_t mutexUARTtxHandle;
 const osMutexAttr_t mutexUARTtx_attributes = {
@@ -35,7 +35,7 @@ if (uart.init() == false)
     Error_Handler();
 }
 ```
-5. Create a mutex, semaphore and a queue
+5. Create a mutex, semaphore and a queue (of your own length...)
 ```
 mutexUARTtxHandle = osMutexNew(&mutexUARTtx_attributes);
 semaphoreUARTtxHandle = osSemaphoreNew(1, 0, &semaphoreUARTtx_attributes);
