@@ -9,7 +9,7 @@
 #define UART_CONTROLLER_H_
 
 #include "main.h"
-#include "cmsis_os2.h"
+#include "cmsis_os.h"
 #include <string>
 
 class UartController
