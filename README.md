@@ -3,7 +3,7 @@
 ```
 #include "uart_controller.h"
 ```  
-1. Init a mutex, semaphore and a queue in global scope
+1. Init a mutex, a semaphore and a queue in global scope
 ```
 osMutexId_t mutexUARTtxHandle;
 const osMutexAttr_t mutexUARTtx_attributes = {
