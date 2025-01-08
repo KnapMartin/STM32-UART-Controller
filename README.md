@@ -36,6 +36,7 @@ if (uart.init() == false)
 }
 ```
 5. Create a mutex, semaphore and a queue (of your own length...)
+NOTE: Semaphore count starts at 0!
 ```
 mutexUARTtxHandle = osMutexNew(&mutexUARTtx_attributes);
 semaphoreUARTtxHandle = osSemaphoreNew(1, 0, &semaphoreUARTtx_attributes);
