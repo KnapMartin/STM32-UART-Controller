@@ -7,14 +7,15 @@
 
 #include "uart_controller.h"
 
-constexpr char rxMessageDelimiter{'\r'};
+constexpr char rxMessageDelimiter
+{ '\r' };
 
-UartController::UartController()
-	: m_rxChar{}
-	, m_huart(nullptr)
-	, m_semTx{nullptr}
-	, m_queueRx{nullptr}
-	, m_mutexTx{nullptr}
+UartController::UartController() :
+		m_rxChar
+		{ }, m_huart(nullptr), m_semTx
+		{ nullptr }, m_queueRx
+		{ nullptr }, m_mutexTx
+		{ nullptr }
 {
 
 }
@@ -45,10 +46,14 @@ void UartController::setHandleMutexTx(osMutexId_t *mutexTx)
 
 bool UartController::init()
 {
-	if (m_huart == nullptr) return false;
-	if (m_semTx == nullptr) return false;
-	if (m_queueRx == nullptr) return false;
-	if (m_mutexTx == nullptr) return false;
+	if (m_huart == nullptr)
+		return false;
+	if (m_semTx == nullptr)
+		return false;
+	if (m_queueRx == nullptr)
+		return false;
+	if (m_mutexTx == nullptr)
+		return false;
 
 	if (HAL_UART_Receive_IT(m_huart, &m_rxChar, 1) != HAL_OK)
 	{
@@ -64,7 +69,8 @@ bool UartController::send(std::string data)
 	{
 		return false;
 	}
-	if (HAL_UART_Transmit_IT(m_huart, (uint8_t*)data.c_str(), data.length()) != HAL_OK)
+	if (HAL_UART_Transmit_IT(m_huart, (uint8_t*) data.c_str(), data.length())
+			!= HAL_OK)
 	{
 		return false;
 	}
@@ -86,7 +92,7 @@ bool UartController::send(char data[], uint32_t length)
 	{
 		return false;
 	}
-	if (HAL_UART_Transmit_IT(m_huart, (uint8_t*)data, length) != HAL_OK)
+	if (HAL_UART_Transmit_IT(m_huart, (uint8_t*) data, length) != HAL_OK)
 	{
 		return false;
 	}
@@ -109,7 +115,8 @@ std::string UartController::receive(bool print)
 
 	while (1)
 	{
-		if (osMessageQueueGet(*m_queueRx, &rxChar, nullptr, osWaitForever) != osOK)
+		if (osMessageQueueGet(*m_queueRx, &rxChar, nullptr, osWaitForever)
+				!= osOK)
 		{
 			return "";
 		}
@@ -157,4 +164,14 @@ bool UartController::updateInterruptTx(UART_HandleTypeDef *huart)
 	}
 
 	return true;
+}
+
+bool UartController::operator <<(const std::string &str)
+{
+	return this->send(str);
+}
+
+bool UartController::operator <<(const char *str)
+{
+	return this->send(std::string(str));
 }
