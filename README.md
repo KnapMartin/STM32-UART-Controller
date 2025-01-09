@@ -1,3 +1,7 @@
+# STM32-UART-Controller
+
+STM32 UART Controller C++ class using HAL and CMSIS OS2.
+
 # Usage
 1. Include header
 ```
@@ -56,3 +60,4 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 ```
 Now you can use "send" and "receive" methods from tasks.
 
+](https://github.com/KnapMartin/STM32-FDCAN-Controller.git)
