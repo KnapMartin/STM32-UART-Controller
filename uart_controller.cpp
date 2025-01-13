@@ -72,6 +72,7 @@ bool UartController::send(std::string data)
 	if (HAL_UART_Transmit_IT(m_huart, (uint8_t*) data.c_str(), data.length())
 			!= HAL_OK)
 	{
+		osMutexRelease(*m_mutexTx);
 		return false;
 	}
 	if (osSemaphoreAcquire(*m_semTx, osWaitForever) != osOK)
