@@ -35,7 +35,7 @@ public:
 	bool operator<<(const char* str);
 
 private:
-	uint8_t m_rxChar;
+	volatile uint8_t m_rxChar;
 	UART_HandleTypeDef *m_huart;
 	osSemaphoreId_t *m_semTx;
 	osMessageQueueId_t *m_queueRx;
